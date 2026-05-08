@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package parser_worker;
+
+import "core/proto/shared/enums.proto";
+
+service Service {
+    rpc health(BaseRequest) returns (HealthResponse);
+    rpc state(BaseRequest) returns (StateResponse);
+    rpc start_task (BaseRequest) returns (ChangeTaskStatusResponse);
+    rpc pause_task (BaseRequest) returns (ChangeTaskStatusResponse);
+    rpc stop_task (BaseRequest) returns (ChangeTaskStatusResponse);
+    rpc get_thread_status (GetThreadStatusRequest) returns (GetThreadStatusResponse);
+    rpc task_sse(BaseRequest) returns (stream TaskSSEResponse);
+}
+
+message BaseRequest {}
+
+message HealthResponse { bool status = 1; }
+
+message StateResponse{
+    bool success = 1;
+    shared.TaskStatus status = 2;
+    string config = 3;
+}
+
+message ChangeTaskStatusResponse {
+    bool success = 1;
+}
+
+message ThreadStatus {
+    int32 thread_id = 1;
+    string status = 2;
+    string details = 3;
+}
+
+message GetThreadStatusRequest {
+    repeated int32 thread_ids = 1;
+}
+
+message GetThreadStatusResponse {
+    repeated ThreadStatus thread_statuses = 1;
+}
+message TaskSSEResponse {
+    shared.SSETypes type = 1;
+    string uuid = 2;
+    string value = 3;
+    string message = 4;
+    repeated string messages = 5;
+}

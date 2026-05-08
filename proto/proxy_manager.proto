@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package proxy_manager;
+
+import "core/proto/shared/task.proto";
+
+service Service {
+  rpc health(HealthRequest) returns (HealthResponse);
+  rpc register_task(RegisterTaskRequest) returns (RegisterTaskResponse);
+  rpc unregister_task(shared.TaskData) returns (UnregisterTaskResponse);
+  rpc get_proxy(shared.TaskData) returns (GetProxyResponse);
+  rpc return_proxy(ReturnProxyRequest) returns (ReturnProxyResponse);
+  rpc ban_proxy(BanProxyRequest) returns (BanProxyResponse);
+}
+
+message HealthRequest {}
+
+message HealthResponse { bool status = 1; }
+
+message RegisterTaskRequest { shared.FullTaskData task_data = 1; }
+
+message RegisterTaskResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message UnregisterTaskResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message GetProxyResponse {
+  bool success = 1;
+  string proxy = 2;
+  string message = 3;
+}
+
+message ReturnProxyRequest {
+  string task_uuid = 1;
+  string proxy = 2;
+}
+
+message ReturnProxyResponse {
+  bool success = 1;
+  string message = 3;
+}
+
+message BanProxyRequest {
+  string task_uuid = 1;
+  string proxy = 2;
+}
+
+message BanProxyResponse {
+  bool success = 1;
+  int64 ban_until_ts = 2;
+}

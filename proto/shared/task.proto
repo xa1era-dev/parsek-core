@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package shared;
+
+import public "core/proto/shared/enums.proto";
+
+message TaskData {
+    string task_uuid = 1;
+}
+
+message FullTaskData {
+    string uuid = 1;
+    string name = 2;
+    string proxy = 3;
+    int32 ban_seconds = 4;
+    ProxyListStrategy list_ban_strategy = 5;
+    ProxyListStrategy list_strategy = 6;
+    ProxyGetStrategy pickup_strategy = 7;
+}

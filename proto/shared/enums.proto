@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package shared;
+
+
+enum SSETypes {
+    PING = 0;
+    CHANGE_STATUS = 1;
+    CHANGE_THREAD_STATUS = 2;
+    INITIALIZED_QUERIES = 3;
+    PARSED_QUERIES = 4;
+    FAILED_QUERIES = 5;
+    ADDED_QUERIES = 6;
+}
+
+enum TaskStatus {
+    RUNNING = 0;
+    PAUSING = 1;
+    PAUSED = 2;
+    STOPPING = 3;
+    STOPPED = 4;
+}
+
+enum ProxyListStrategy {
+    PARSER = 0;
+    TASK = 1;
+}
+
+enum ProxyGetStrategy {
+    POP = 0;
+    PICK = 1;
+}
