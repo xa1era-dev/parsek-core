@@ -141,7 +141,7 @@ class watched:
         self._event_type = event_type
         self._interval = interval
         self._prop: property | None = None
-        self._name = uuid
+        self._name: str = ""
         self._uuid = uuid
         self._poll_tasks: weakref.WeakKeyDictionary[Any, asyncio.Task] = (
             weakref.WeakKeyDictionary()
@@ -193,7 +193,7 @@ class watched:
             if old != new:
                 self._last_values[obj] = new
                 payload_kwargs = dict(type=self._event_type, data=new)
-                if self._uuid:
+                if self._uuid is not None:
                     payload_kwargs["uuid"] = self._uuid
                 await SSEPayload(**payload_kwargs).broadcast()
 
