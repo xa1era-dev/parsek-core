@@ -100,7 +100,7 @@ def emit(
             uuid = None
             if isinstance(data, tuple):
                 uuid, data = data
-            await SSEBus()._broadcast(SSEPayload(type=event_type, data=data, uuid=uuid))
+            await SSEPayload(type=event_type, data=data, uuid=uuid).broadcast()
             return result
 
         return wrapper
@@ -132,11 +132,14 @@ class watched:
             return self._counter
     """
 
-    def __init__(self, event_type: SSEEventType, *, interval: float = 1.0) -> None:
+    def __init__(
+        self, event_type: SSEEventType, *, uuid=None, interval: float = 1.0
+    ) -> None:
         self._event_type = event_type
         self._interval = interval
         self._prop: property | None = None
         self._name: str = ""
+        self._uuid = uuid
         self._poll_tasks: weakref.WeakKeyDictionary[Any, asyncio.Task] = (
             weakref.WeakKeyDictionary()
         )
@@ -186,7 +189,10 @@ class watched:
             old = self._last_values.get(obj)
             if old != new:
                 self._last_values[obj] = new
-                await SSEBus()._broadcast(SSEPayload(type=self._event_type, data=new))
+                payload_kwargs = dict(type=self._event_type, data=new)
+                if self._uuid:
+                    payload_kwargs["uuid"] = self._uuid
+                await SSEPayload(**payload_kwargs).broadcast()
 
     def __set__(self, obj: Any, value: Any) -> None:
         old = self._prop.fget(obj)  # type: ignore[union-attr]
@@ -194,7 +200,7 @@ class watched:
         new = self._prop.fget(obj)  # type: ignore[union-attr]
         if old == new:
             return
-        SSEBus()._broadcast_sync(SSEPayload(type=self._event_type, data=new))
+        await SSEPayload(type=self._event_type, data=new).broadcast()
 
     def __delete__(self, obj: Any) -> None:
         self._prop.__delete__(obj)  # type: ignore[union-attr]
