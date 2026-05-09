@@ -136,13 +136,13 @@ class watched:
     """
 
     def __init__(
-        self, event_type: SSEEventType, *, uuid=None, interval: float = 1.0
+        self, event_type: SSEEventType, *, uuid_callable=None, interval: float = 1.0
     ) -> None:
         self._event_type = event_type
         self._interval = interval
         self._prop: property | None = None
         self._name: str = ""
-        self._uuid = uuid
+        self._uuid_callable = uuid_callable
         self._poll_tasks: weakref.WeakKeyDictionary[Any, asyncio.Task] = (
             weakref.WeakKeyDictionary()
         )
@@ -193,8 +193,8 @@ class watched:
             if old != new:
                 self._last_values[obj] = new
                 payload_kwargs = dict(type=self._event_type, data=new)
-                if self._uuid is not None:
-                    payload_kwargs["uuid"] = self._uuid
+                if self._uuid_callable is not None:
+                    payload_kwargs["uuid"] = self._uuid_callable(obj)
                 await SSEPayload(**payload_kwargs).broadcast()
 
     def __set__(self, obj: Any, value: Any) -> None:
@@ -203,13 +203,16 @@ class watched:
         new = self._prop.fget(obj)  # type: ignore[union-attr]
         if old == new:
             return
-        SSEPayload(type=self._event_type, data=new).broadcast_sync()
+        uuid = self._uuid_callable(obj) if self._uuid_callable is not None else None
+        SSEPayload(type=self._event_type, data=new, uuid=uuid).broadcast_sync()
 
     def __delete__(self, obj: Any) -> None:
         self._prop.__delete__(obj)  # type: ignore[union-attr]
 
     def _clone_with(self, prop: property) -> watched:
-        clone = watched(self._event_type, interval=self._interval)
+        clone = watched(
+            self._event_type, uuid_callable=self._uuid_callable, interval=self._interval
+        )
         clone._prop = prop
         clone._name = self._name
         clone._poll_tasks = self._poll_tasks
