@@ -141,7 +141,7 @@ class watched:
         self._event_type = event_type
         self._interval = interval
         self._prop: property | None = None
-        self._name: str = ""
+        self._name = uuid
         self._uuid = uuid
         self._poll_tasks: weakref.WeakKeyDictionary[Any, asyncio.Task] = (
             weakref.WeakKeyDictionary()
