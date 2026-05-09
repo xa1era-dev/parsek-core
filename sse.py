@@ -30,6 +30,9 @@ class SSEPayload:
     async def broadcast(self):
         await SSEBus()._broadcast(self)
 
+    def broadcast_sync(self):
+        SSEBus()._broadcast_sync(self)
+
 
 _SSE_BUS_KEY = "__sse_bus_instance__"
 
@@ -200,7 +203,7 @@ class watched:
         new = self._prop.fget(obj)  # type: ignore[union-attr]
         if old == new:
             return
-        await SSEPayload(type=self._event_type, data=new).broadcast()
+        SSEPayload(type=self._event_type, data=new).broadcast_sync()
 
     def __delete__(self, obj: Any) -> None:
         self._prop.__delete__(obj)  # type: ignore[union-attr]
